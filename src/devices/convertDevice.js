@@ -33,20 +33,36 @@ export function enkiExternalIds(gladys, nodeId) {
 }
 
 /**
+ * Stamp an explicit, globally-unique selector on each feature.
+ *
+ * A Gladys device-feature `selector` is UNIQUE across the whole instance. When
+ * a feature is published without one, Gladys derives it from the name
+ * (e.g. "Power" -> "power"), which collides with any other device/integration
+ * exposing a feature with the same name. Basing it on the already-unique
+ * external_id (Gladys slugifies it, e.g. "ext-enki-enki-<nodeId>-power") keeps
+ * it globally unique.
+ * @param {Array} features Gladys features (each with an external_id)
+ * @returns {Array} the same features, each carrying a unique `selector`
+ */
+function withFeatureSelectors(features) {
+  return features.map((feature) => ({ ...feature, selector: feature.external_id }));
+}
+
+/**
  * @param {import('@gladysassistant/integration-sdk').GladysIntegration} gladys
  * @param {object} node discovered node `{ nodeId, homeId, name, model, profile }`
  * @returns {object} Gladys discovered device
  */
 export function convertDevice(gladys, node) {
   const ids = enkiExternalIds(gladys, node.nodeId);
-  const features = [
+  const features = withFeatureSelectors([
     ...buildFanFeatures(ids, node.profile),
     ...buildLightFeatures(ids, node.profile),
     ...buildSwitchFeatures(ids, node.profile),
     ...buildCoverFeatures(ids, node.profile),
     ...buildHeaterFeatures(ids, node.profile),
     ...buildSensorFeatures(ids, node.profile),
-  ];
+  ]);
 
   return {
     name: node.name || String(node.nodeId),

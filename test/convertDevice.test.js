@@ -31,6 +31,22 @@ test('convertDevice builds a fan+light device with all features and params', () 
   assert.deepEqual(getProfile(device), node.profile);
 });
 
+test('every feature carries a unique selector based on its external_id', () => {
+  const node = {
+    nodeId: 'fan-node-1',
+    homeId: 'home-1',
+    name: 'Living room fan',
+    model: 'Siroco+',
+    profile: buildProfile(REFERENTIEL.AD_TCFL_1),
+  };
+  const { features } = convertDevice(gladys, node);
+  // The selector must equal the (globally-unique) external_id, otherwise Gladys
+  // derives it from the name and collides on the global selector constraint.
+  features.forEach((f) => assert.equal(f.selector, f.external_id));
+  const selectors = features.map((f) => f.selector);
+  assert.equal(new Set(selectors).size, selectors.length, 'selectors are unique');
+});
+
 test('getHomeId / getProfile throw on a device missing its params', () => {
   assert.throws(() => getHomeId({ external_id: 'x', params: [] }), /homeId/);
   assert.throws(() => getProfile({ external_id: 'x', params: [] }), /enkiMeta/);
