@@ -1,6 +1,6 @@
 {
   "name": "gladys-enki",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Enki (Leroy Merlin) external integration for Gladys Assistant: control your Enki lights and ceiling fans.",
   "type": "module",
